@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Geoguessr Return to Map Link
-// @version      0.1
+// @name         Geoguessr Return to Map Link 2
+// @version      1.0
 // @description  Adds a link to game results to return to the map page
 // @author       @nombrekeff
 // @match        https://www.geoguessr.com/game/*
@@ -23,19 +23,23 @@ ${label}
 </div>
 </a>`;
 
+const DATA = {
+    gameData: {},
+};
+
 
 const getGameId = () => {
-	return window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+    return window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
 }
 
 const queryGeoguessrGameData = async (id) => {
-	let apiUrl = `https://www.geoguessr.com/api/v3/games/${getGameId()}`;
+    let apiUrl = `https://www.geoguessr.com/api/v3/games/${getGameId()}`;
 
-	if(location.pathname.startsWith("/challenge/")) {
-		apiUrl = `https://www.geoguessr.com/api/v3/challenges/${id}/game`;
-	}
+    if(location.pathname.startsWith("/challenge/")) {
+        apiUrl = `https://www.geoguessr.com/api/v3/challenges/${id}/game`;
+    }
 
-	return await fetch(apiUrl).then(res => res.json());
+    return await fetch(apiUrl).then(res => res.json());
 }
 
 
@@ -43,21 +47,36 @@ const createDiv = () => {
     const div = document.createElement('div');
     div.style.position = 'absolute';
     div.style.left = '20px';
+    div.id = 'maplink';
     return div;
 }
 
-const addMapLink = async (parent) => {
-    const data = await queryGeoguessrGameData();
+const addMapLink = (parent) => {
+    const data = DATA.gameData;
     const divWrapper = createDiv();
     divWrapper.innerHTML = slantedMapLink(data.mapName, data.map, data.mapName);
     parent.append(divWrapper);
 };
 
 
-window.onload = async () => {
-    const roundResultEl = document.querySelector('#__next > div.in-game_root__3hGRu.in-game_backgroundDefault__UDbvo > div.in-game_content__oDaT9 > main > div.result-layout_root__NfX12 > div > div.result-layout_topNew__RNAJ4 > div.round-indicator_roundIndicator__ogZIY');
-    if(roundResultEl) {
-        addMapLink(roundResultEl);
-    }
-};
+const checkState = () => {
+    const resultLayout = document.querySelector("#__next div.result-layout_topNew__RNAJ4 > div.round-indicator_roundIndicator__ogZIY");
+    const mapLinkElAlreadyExists = document.getElementById('maplink');
 
+    if(resultLayout && !mapLinkElAlreadyExists) {
+        console.log('add link');
+        addMapLink(resultLayout);
+    }
+}
+
+const init = async () => {
+    const data = await queryGeoguessrGameData();
+    DATA.gameData = data;
+
+    const observer = new MutationObserver(() => {
+        checkState();
+    });
+
+    observer.observe(document.querySelector('#__next'), { subtree: true, childList: true });
+}
+init();
