@@ -23,6 +23,10 @@ ${label}
 </div>
 </a>`;
 
+const CONFIG = {
+  makeMapNameALink: true,
+};
+
 const DATA = {
     gameData: {},
 };
@@ -42,7 +46,6 @@ const queryGeoguessrGameData = async (id) => {
     return await fetch(apiUrl).then(res => res.json());
 }
 
-
 const createDiv = () => {
     const div = document.createElement('div');
     div.style.position = 'absolute';
@@ -58,7 +61,6 @@ const addMapLink = (parent) => {
     parent.append(divWrapper);
 };
 
-
 const checkState = () => {
     const resultLayout = document.querySelector("#__next div.result-layout_topNew__RNAJ4 > div.round-indicator_roundIndicator__ogZIY");
     const mapLinkElAlreadyExists = document.getElementById('maplink');
@@ -66,6 +68,16 @@ const checkState = () => {
     if(resultLayout && !mapLinkElAlreadyExists) {
         console.log('add link');
         addMapLink(resultLayout);
+    }
+
+    if(!CONFIG.makeMapNameALink) return;
+
+    const statusMapName = document.querySelector('.status_value__xZMNY');
+    if(statusMapName) {
+       const statusMapLink = document.querySelector('.status_value__xZMNY > a');
+       if(!statusMapLink) {
+          statusMapName.innerHTML = `<a style="color: inherit" href="/maps/${DATA.gameData.map}">${DATA.gameData.mapName}</a>`;
+       }
     }
 }
 
