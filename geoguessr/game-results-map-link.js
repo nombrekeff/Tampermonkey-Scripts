@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         Geoguessr Return to Map Link
-// @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  Adds a link to game results to return to the map page
 // @author       @nombrekeff
 // @match        https://www.geoguessr.com/game/*
 // @icon         https://www.google.com/s2/favicons?domain=geoguessr.com
 // @grant        none
+// @downloadURL  https://github.com/nombrekeff/Tampermonkey-Scripts/blob/main/geoguessr/game-results-map-link.js
+// @updateURL    https://github.com/nombrekeff/Tampermonkey-Scripts/blob/main/geoguessr/game-results-map-link.js
+// @copyright    2023, nombrekeff (https://github.com/miraclewhips)
 // ==/UserScript==
 
 const arrowIconUrl = '/_next/static/images/arrow-left-ddddc174f6fd632247f5bf1d712df280.svg';
