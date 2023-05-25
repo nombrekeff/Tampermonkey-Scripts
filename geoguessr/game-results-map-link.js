@@ -11,6 +11,16 @@
 // @copyright    2023, nombrekeff (https://github.com/miraclewhips)
 // ==/UserScript==
 
+
+const CONFIG = {
+  // Make the in-game map name a link to the map page  (top right where the name of the map is displayer)
+  makeMapNameALink: true,
+
+  // Add a link on the top left corner to navigate to the map page
+  addLinkToResultScreens: true,
+};
+
+
 const arrowIconUrl = '/_next/static/images/arrow-left-ddddc174f6fd632247f5bf1d712df280.svg';
 const slantedMapLink = (label, mapId, mapName) =>
 `<a class="slanted-map_link" title="Go back to map: ${mapName}" style="color: var(--ds-color-white);text-decoration: none" href="/maps/${mapId}"><div class="slanted-wrapper_root__2eaEs slanted-wrapper_variantGrayTransparent__aufaF">
@@ -22,10 +32,6 @@ ${label}
 <div class="slanted-wrapper_end__cD1Qu slanted-wrapper_right__G0JWR"></div>
 </div>
 </a>`;
-
-const CONFIG = {
-  makeMapNameALink: true,
-};
 
 const DATA = {
     gameData: {},
@@ -62,28 +68,32 @@ const addMapLink = (parent) => {
 };
 
 const checkState = () => {
-    const resultLayout = document.querySelector("#__next div.result-layout_topNew__RNAJ4 > div.round-indicator_roundIndicator__ogZIY");
-    const mapLinkElAlreadyExists = document.getElementById('maplink');
+    if(CONFIG.addLinkToResultScreens) {
+        const resultLayout = document.querySelector("#__next div.result-layout_topNew__RNAJ4 > div.round-indicator_roundIndicator__ogZIY");
+        const mapLinkElAlreadyExists = document.getElementById('maplink');
 
-    if(resultLayout && !mapLinkElAlreadyExists) {
-        console.log('add link');
-        addMapLink(resultLayout);
+        if(resultLayout && !mapLinkElAlreadyExists) {
+            console.log('add link');
+            addMapLink(resultLayout);
+        }
     }
 
-    if(!CONFIG.makeMapNameALink) return;
-
-    const statusMapName = document.querySelector('.status_value__xZMNY');
-    if(statusMapName) {
-       const statusMapLink = document.querySelector('.status_value__xZMNY > a');
-       if(!statusMapLink) {
-          statusMapName.innerHTML = `<a style="color: inherit" href="/maps/${DATA.gameData.map}">${DATA.gameData.mapName}</a>`;
-       }
+    if(CONFIG.makeMapNameALink) {
+        const statusMapName = document.querySelector('.status_value__xZMNY');
+        if(statusMapName) {
+            const statusMapLink = document.querySelector('.status_value__xZMNY > a');
+            if(!statusMapLink) {
+                statusMapName.innerHTML = `<a style="color: inherit" href="/maps/${DATA.gameData.map}">${DATA.gameData.mapName}</a>`;
+            }
+        }
     }
 }
-
-const init = async () => {
+const load = async () => {
     const data = await queryGeoguessrGameData();
     DATA.gameData = data;
+};
+const init = async () => {
+    await load();
 
     const observer = new MutationObserver(() => {
         checkState();
@@ -92,3 +102,4 @@ const init = async () => {
     observer.observe(document.querySelector('#__next'), { subtree: true, childList: true });
 }
 init();
+window.onload = load;
